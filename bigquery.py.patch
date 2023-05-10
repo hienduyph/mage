@@ -1,0 +1,16 @@
+--- io/bigquery.py	2023-05-10 19:10:35.636239247 +0700
++++ io/bigquery_withscoped.py	2023-05-10 19:11:56.485405569 +0700
+@@ -46,11 +46,11 @@
+             if 'credentials_mapping' in kwargs:
+                 mapping_obj = kwargs.pop('credentials_mapping')
+                 if mapping_obj is not None:
+-                    credentials = service_account.Credentials.from_service_account_info(mapping_obj)
++                    credentials = service_account.Credentials.from_service_account_info(mapping_obj, scopes=["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/cloud-platfom"])
+             if 'path_to_credentials' in kwargs:
+                 path = kwargs.pop('path_to_credentials')
+                 if path is not None:
+-                    credentials = service_account.Credentials.from_service_account_file(path)
++                    credentials = service_account.Credentials.from_service_account_file(path, scopes=["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/cloud-platfom"])
+             if 'credentials' in kwargs:
+                 kwargs.pop('credentials')
+         with self.printer.print_msg('Connecting to BigQuery warehouse'):
