@@ -46,11 +46,11 @@ class BigQuery(BaseSQLDatabase):
             if 'credentials_mapping' in kwargs:
                 mapping_obj = kwargs.pop('credentials_mapping')
                 if mapping_obj is not None:
-                    credentials = service_account.Credentials.from_service_account_info(mapping_obj, scopes=["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/cloud-platfom"])
+                    credentials = service_account.Credentials.from_service_account_info(mapping_obj, scopes=["https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/drive"])
             if 'path_to_credentials' in kwargs:
                 path = kwargs.pop('path_to_credentials')
                 if path is not None:
-                    credentials = service_account.Credentials.from_service_account_file(path, scopes=["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/cloud-platfom"])
+                    credentials = service_account.Credentials.from_service_account_file(path, scopes=["https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/drive"])
             if 'credentials' in kwargs:
                 kwargs.pop('credentials')
         with self.printer.print_msg('Connecting to BigQuery warehouse'):
