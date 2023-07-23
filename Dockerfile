@@ -6,9 +6,6 @@ RUN groupadd -g 1001 mageai \
 
 RUN mkdir -p /home/mageai/.ssh && chown -R 1001:1001 /home/src  /home/mageai/.ssh
 
-COPY bigquery.py.patch /tmp
-
-RUN patch  /usr/local/lib/python3.10/site-packages/mage_ai/io/bigquery.py /tmp/bigquery.py.patch
 
 WORKDIR /home/src
 
