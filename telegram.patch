@@ -1,0 +1,87 @@
+diff --git mage_ai/orchestration/notification/config.py mage_ai/orchestration/notification/config.py
+index d923cdd6d..8e27075dc 100644
+--- mage_ai/orchestration/notification/config.py
++++ mage_ai/orchestration/notification/config.py
+@@ -7,6 +7,7 @@ from mage_ai.services.google_chat.config import GoogleChatConfig
+ from mage_ai.services.opsgenie.config import OpsgenieConfig
+ from mage_ai.services.slack.config import SlackConfig
+ from mage_ai.services.teams.config import TeamsConfig
++from mage_ai.services.webhook.config import WebhookConfig
+ from mage_ai.shared.config import BaseConfig
+ 
+ 
+@@ -44,4 +45,5 @@ class NotificationConfig(BaseConfig):
+     opsgenie_config: OpsgenieConfig = None
+     slack_config: SlackConfig = None
+     teams_config: TeamsConfig = None
++    webhook_config: WebhookConfig = None
+     message_templates: MessageTemplates = None
+diff --git mage_ai/orchestration/notification/sender.py mage_ai/orchestration/notification/sender.py
+index d303d82ec..722354e2b 100644
+--- mage_ai/orchestration/notification/sender.py
++++ mage_ai/orchestration/notification/sender.py
+@@ -11,6 +11,7 @@ from mage_ai.services.google_chat.google_chat import send_google_chat_message
+ from mage_ai.services.opsgenie.opsgenie import send_opsgenie_alert
+ from mage_ai.services.slack.slack import send_slack_message
+ from mage_ai.services.teams.teams import send_teams_message
++from mage_ai.services.webhook.webhook import send_webhook_message
+ from mage_ai.settings import DEFAULT_LOCALHOST_URL, MAGE_PUBLIC_HOST
+ 
+ DEFAULT_MESSAGES = dict(
+@@ -81,6 +82,13 @@ class NotificationSender:
+                 description=details or summary,
+             )
+ 
++        if self.config.webhook_config is not None and self.config.webhook_config.is_valid:
++            send_webhook_message(
++                self.config.webhook_config,
++                title=title,
++                message=details or summary,
++            )
++
+     def send_pipeline_run_success_message(self, pipeline, pipeline_run) -> None:
+         if AlertOn.PIPELINE_RUN_SUCCESS in self.config.alert_on:
+             default_message = DEFAULT_MESSAGES['success']
+diff --git mage_ai/services/webhook/__init__.py mage_ai/services/webhook/__init__.py
+new file mode 100644
+index 000000000..e69de29bb
+diff --git mage_ai/services/webhook/config.py mage_ai/services/webhook/config.py
+new file mode 100644
+index 000000000..b4bbf44e1
+--- /dev/null
++++ mage_ai/services/webhook/config.py
+@@ -0,0 +1,12 @@
++from dataclasses import dataclass
++from mage_ai.shared.config import BaseConfig
++
++
++@dataclass
++class WebhookConfig(BaseConfig):
++    webhook_url: str = None
++
++    @property
++    def is_valid(self) -> bool:
++        hook = self.webhook_url is not None and self.webhook_url != "None"
++        return hook
+diff --git mage_ai/services/webhook/webhook.py mage_ai/services/webhook/webhook.py
+new file mode 100644
+index 000000000..575d169ab
+--- /dev/null
++++ mage_ai/services/webhook/webhook.py
+@@ -0,0 +1,16 @@
++import requests
++from mage_ai.services.webhook.config import WebhookConfig
++
++
++def send_webhook_message(
++    config: WebhookConfig,
++    message: str,
++    title: str = None,
++) -> None:
++    message = message.replace("\\n", "\n")
++    body = {
++        "text": message,
++    }
++    resp = requests.post(config.webhook_url, json=body)
++    if resp.status_code != 200:
++        print("telegram_alert_error", resp.status_code, resp.text)
