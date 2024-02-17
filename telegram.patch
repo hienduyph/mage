@@ -1,8 +1,8 @@
 diff --git mage_ai/orchestration/notification/config.py mage_ai/orchestration/notification/config.py
-index d923cdd6d..8e27075dc 100644
+index 65b017e87..bda6b207f 100644
 --- mage_ai/orchestration/notification/config.py
 +++ mage_ai/orchestration/notification/config.py
-@@ -7,6 +7,7 @@ from mage_ai.services.google_chat.config import GoogleChatConfig
+@@ -8,13 +8,14 @@ from mage_ai.services.google_chat.config import GoogleChatConfig
  from mage_ai.services.opsgenie.config import OpsgenieConfig
  from mage_ai.services.slack.config import SlackConfig
  from mage_ai.services.teams.config import TeamsConfig
@@ -10,17 +10,29 @@ index d923cdd6d..8e27075dc 100644
  from mage_ai.shared.config import BaseConfig
  
  
-@@ -44,4 +45,5 @@ class NotificationConfig(BaseConfig):
-     opsgenie_config: OpsgenieConfig = None
+ class AlertOn(str, Enum):
+-    PIPELINE_RUN_FAILURE = 'trigger_failure'
+-    PIPELINE_RUN_SUCCESS = 'trigger_success'
+-    PIPELINE_RUN_PASSED_SLA = 'trigger_passed_sla'
++    PIPELINE_RUN_FAILURE = "trigger_failure"
++    PIPELINE_RUN_SUCCESS = "trigger_success"
++    PIPELINE_RUN_PASSED_SLA = "trigger_passed_sla"
+ 
+ 
+ DEFAULT_ALERT_ON = [
+@@ -46,4 +47,5 @@ class NotificationConfig(BaseConfig):
      slack_config: SlackConfig = None
      teams_config: TeamsConfig = None
+     discord_config: DiscordConfig = None
+-    message_templates: MessageTemplates = None
 +    webhook_config: WebhookConfig = None
-     message_templates: MessageTemplates = None
++    message_templates: MessageTemplates = None
+\ No newline at end of file
 diff --git mage_ai/orchestration/notification/sender.py mage_ai/orchestration/notification/sender.py
-index d303d82ec..722354e2b 100644
+index 885833477..20edc43c7 100644
 --- mage_ai/orchestration/notification/sender.py
 +++ mage_ai/orchestration/notification/sender.py
-@@ -11,6 +11,7 @@ from mage_ai.services.google_chat.google_chat import send_google_chat_message
+@@ -12,6 +12,7 @@ from mage_ai.services.google_chat.google_chat import send_google_chat_message
  from mage_ai.services.opsgenie.opsgenie import send_opsgenie_alert
  from mage_ai.services.slack.slack import send_slack_message
  from mage_ai.services.teams.teams import send_teams_message
@@ -28,7 +40,7 @@ index d303d82ec..722354e2b 100644
  from mage_ai.settings import DEFAULT_LOCALHOST_URL, MAGE_PUBLIC_HOST
  
  DEFAULT_MESSAGES = dict(
-@@ -81,6 +82,13 @@ class NotificationSender:
+@@ -85,6 +86,13 @@ class NotificationSender:
                  description=details or summary,
              )
  
