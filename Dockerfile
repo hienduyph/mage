@@ -5,8 +5,8 @@ USER root
 ENV VERSION=${VERSION}
 
 # custom patch 
-COPY ./telegram.patch /tmp
-RUN cd /usr/local/lib/python3.10/site-packages && patch -p0 < /tmp/telegram.patch
+# COPY ./telegram.patch /tmp
+# RUN cd /usr/local/lib/python3.10/site-packages && patch -p0 < /tmp/telegram.patch
 
 RUN groupadd -g 1001 mageai \
   && useradd mageai -u 1001 -g 1001 -m -s /bin/bash \
